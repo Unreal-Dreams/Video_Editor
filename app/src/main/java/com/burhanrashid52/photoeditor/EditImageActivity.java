@@ -12,8 +12,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,14 @@ import com.burhanrashid52.photoeditor.filters.FilterListener;
 import com.burhanrashid52.photoeditor.filters.FilterViewAdapter;
 import com.burhanrashid52.photoeditor.tools.EditingToolsAdapter;
 import com.burhanrashid52.photoeditor.tools.ToolType;
+import com.daasuu.epf.EPlayerView;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +54,7 @@ import ja.burhanrashid52.photoeditor.PhotoFilter;
 import ja.burhanrashid52.photoeditor.SaveSettings;
 import ja.burhanrashid52.photoeditor.TextStyleBuilder;
 import ja.burhanrashid52.photoeditor.ViewType;
+
 
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
@@ -69,6 +80,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
+    private EPlayerView ePlayerView;
+    private SimpleExoPlayer player;
+    private PlayerTimer playerTimer;
+
     @Nullable
     @VisibleForTesting
     Uri mSaveImageUri;
@@ -79,6 +94,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         super.onCreate(savedInstanceState);
         makeFullScreen();
         setContentView(R.layout.activity_edit_image);
+
 
         initViews();
 
@@ -112,10 +128,84 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 .build(); // build photo editor sdk
 
         mPhotoEditor.setOnPhotoEditorListener(this);
+        try{
+            setUpSimpleExoPlayer();
+            Log.d("EXO", "onCreate: hh ");
+            setUoGlPlayerView();
+            Log.d("EXO", "onCreate: kk");
+            setUpTimer();
+        }
+        catch (Exception e)
+        {
+            Log.d("EXO2", "onCreate: "+e.getMessage());
+        }
+
 
         //Set Image Dynamically
         // mPhotoEditorView.getSource().setImageResource(R.drawable.color_palette);
     }
+
+
+    private void setUpSimpleExoPlayer() {
+
+
+        // Produces DataSource instances through which media data is loaded.
+
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
+
+        // This is the MediaSource representing the media to be played.
+        MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(Uri.parse("http://demos.webmproject.org/exoplayer/glass.mp4"));
+
+        // SimpleExoPlayer
+        player = ExoPlayerFactory.newSimpleInstance(this);
+        // Prepare the player with the source.
+        player.prepare(videoSource);
+        player.setPlayWhenReady(true);
+
+    }
+    private void setUoGlPlayerView() {
+        ePlayerView = new EPlayerView(this);
+        ePlayerView.setSimpleExoPlayer(player);
+        ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        ((MovieWrapperView) findViewById(R.id.layout_movie_wrapper)).addView(ePlayerView);
+        ePlayerView.onResume();
+    }
+
+    private void setUpTimer() {
+        playerTimer = new PlayerTimer();
+        playerTimer.setCallback(new PlayerTimer.Callback() {
+            @Override
+            public void onTick(long timeMillis) {
+                long position = player.getCurrentPosition();
+                long duration = player.getDuration();
+
+                if (duration <= 0) return;
+            }
+        });
+        playerTimer.start();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        releasePlayer();
+        if (playerTimer != null) {
+            playerTimer.stop();
+            playerTimer.removeMessages(0);
+        }
+    }
+
+    private void releasePlayer() {
+        ePlayerView.onPause();
+        ePlayerView = null;
+        player.stop();
+        player.release();
+        player = null;
+    }
+
+
 
     private void handleIntentImage(ImageView source) {
         Intent intent = getIntent();

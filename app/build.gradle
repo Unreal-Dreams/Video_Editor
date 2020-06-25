@@ -16,8 +16,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -27,6 +35,7 @@ dependencies {
     //implementation project(':photoeditor')
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation project(path: ':epf')
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
 
     testImplementation 'junit:junit:4.12'
 
