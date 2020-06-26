@@ -237,26 +237,26 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         Bitmap bitmapEmpty = Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888);
         mPhotoEditorView.getSource().setImageBitmap(bitmapEmpty);
 
-        imgUndo = findViewById(R.id.imgUndo);
-        imgUndo.setOnClickListener(this);
+//        imgUndo = findViewById(R.id.imgUndo);
+//        imgUndo.setOnClickListener(this);
+//
+//        imgRedo = findViewById(R.id.imgRedo);
+//        imgRedo.setOnClickListener(this);
 
-        imgRedo = findViewById(R.id.imgRedo);
-        imgRedo.setOnClickListener(this);
-
-        imgCamera = findViewById(R.id.imgCamera);
-        imgCamera.setOnClickListener(this);
-
-        imgGallery = findViewById(R.id.imgGallery);
-        imgGallery.setOnClickListener(this);
+//        imgCamera = findViewById(R.id.imgCamera);
+//        imgCamera.setOnClickListener(this);
+//
+//        imgGallery = findViewById(R.id.imgGallery);
+//        imgGallery.setOnClickListener(this);
 
         imgSave = findViewById(R.id.imgSave);
         imgSave.setOnClickListener(this);
 
-        imgClose = findViewById(R.id.imgClose);
-        imgClose.setOnClickListener(this);
+//        imgClose = findViewById(R.id.imgClose);
+//        imgClose.setOnClickListener(this);
 
-        imgShare = findViewById(R.id.imgShare);
-        imgShare.setOnClickListener(this);
+//        imgShare = findViewById(R.id.imgShare);
+//        imgShare.setOnClickListener(this);
 
     }
 
@@ -300,36 +300,36 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     public void onClick(View view) {
         switch (view.getId()) {
 
-            case R.id.imgUndo:
-                mPhotoEditor.undo();
-                break;
-
-            case R.id.imgRedo:
-                mPhotoEditor.redo();
-                break;
+//            case R.id.imgUndo:
+//                mPhotoEditor.undo();
+//                break;
+//
+//            case R.id.imgRedo:
+//                mPhotoEditor.redo();
+//                break;
 
             case R.id.imgSave:
                 saveImage();
                 break;
 
-            case R.id.imgClose:
-                onBackPressed();
-                break;
-            case R.id.imgShare:
-                shareImage();
-                break;
+//            case R.id.imgClose:
+//                onBackPressed();
+//                break;
+//            case R.id.imgShare:
+//                shareImage();
+//                break;
 
-            case R.id.imgCamera:
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-                break;
-
-            case R.id.imgGallery:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
-                break;
+//            case R.id.imgCamera:
+//                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+//                break;
+//
+//            case R.id.imgGallery:
+//                Intent intent = new Intent();
+//                intent.setType("image/*");
+//                intent.setAction(Intent.ACTION_GET_CONTENT);
+//                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
+//                break;
         }
     }
 
