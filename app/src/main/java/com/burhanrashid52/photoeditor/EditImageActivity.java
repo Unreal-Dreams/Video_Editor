@@ -17,6 +17,7 @@ import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,16 +33,20 @@ import androidx.transition.TransitionManager;
 
 import com.burhanrashid52.photoeditor.base.BaseActivity;
 import com.burhanrashid52.photoeditor.filters.FilterListener;
+import com.burhanrashid52.photoeditor.filters.FilterType;
 import com.burhanrashid52.photoeditor.filters.FilterViewAdapter;
 import com.burhanrashid52.photoeditor.tools.EditingToolsAdapter;
 import com.burhanrashid52.photoeditor.tools.ToolType;
 import com.daasuu.epf.EPlayerView;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
@@ -154,14 +159,36 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
 
         // This is the MediaSource representing the media to be played.
-        MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse("http://demos.webmproject.org/exoplayer/glass.mp4"));
+//        MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
+//                .createMediaSource(Uri.parse("http://demos.webmproject.org/exoplayer/glass.mp4"));
+        final RawResourceDataSource rawResourceDataSource = new RawResourceDataSource(getApplicationContext());
+        DataSpec dataSpec = new DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.samplevideo));
+
+
+        try {
+            rawResourceDataSource.open(dataSpec);
+
+            DataSource.Factory factory = new DataSource.Factory() {
+                @Override
+                public DataSource createDataSource() {
+                    return rawResourceDataSource;
+                }
+            };
+            MediaSource videoSource = new ExtractorMediaSource.Factory(factory).createMediaSource(rawResourceDataSource.getUri());
+            player = ExoPlayerFactory.newSimpleInstance(this);
+            player.prepare(videoSource);
+            player.setPlayWhenReady(true);
+
+        } catch (RawResourceDataSource.RawResourceDataSourceException e) {
+            e.printStackTrace();
+        }
+
+
 
         // SimpleExoPlayer
-        player = ExoPlayerFactory.newSimpleInstance(this);
-        // Prepare the player with the source.
-        player.prepare(videoSource);
-        player.setPlayWhenReady(true);
+
+        // Prepare the player with the source.\
+
 
     }
     private void setUoGlPlayerView() {
@@ -477,9 +504,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     }
 
     @Override
-    public void onFilterSelected(PhotoFilter photoFilter) {
-        mPhotoEditor.setFilterEffect(photoFilter);
+    public void onFilterSelected(FilterType filterType) {
+        ePlayerView.setGlFilter(FilterType.createGlFilter(filterType, getApplicationContext()));
     }
+
 
     @Override
     public void onToolSelected(ToolType toolType) {
