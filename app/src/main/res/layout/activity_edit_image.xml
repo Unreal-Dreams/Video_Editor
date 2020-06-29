@@ -28,11 +28,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+        <androidx.recyclerview.widget.RecyclerView
+            android:backgroundTint="@color/transparent"
+            android:id="@+id/rvConstraintTools"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@color/tool_bg"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:listitem="@layout/row_editing_tools" />
 
         <com.burhanrashid52.photoeditor.MovieWrapperView
             android:id="@+id/layout_movie_wrapper"
             android:layout_width="match_parent"
-            android:layout_marginTop="200dp"
+            android:layout_marginTop="150dp"
             android:layout_height="217dp"
             app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -99,37 +115,21 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center|bottom">
-    <androidx.recyclerview.widget.RecyclerView
-        android:backgroundTint="@color/transparent"
-        android:id="@+id/rvConstraintTools"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@color/tool_bg"
-        android:orientation="horizontal"
-        android:paddingTop="4dp"
 
-        android:paddingBottom="4dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:listitem="@layout/row_editing_tools" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFilterView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/tool_bg"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/rvConstraintTools"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rvConstraintTools"
-        tools:listitem="@layout/row_filter_view" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFilterView"
+                android:layout_width="match_parent"
+                android:layout_height="86dp"
+                android:background="@color/tool_bg"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="@+id/rvConstraintTools"
+                app:layout_constraintStart_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/rvConstraintTools"
+                tools:listitem="@layout/row_filter_view" />
 
     <ImageView
         android:id="@+id/imgSave"
