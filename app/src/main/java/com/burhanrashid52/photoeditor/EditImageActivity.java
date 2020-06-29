@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.FileProvider;
@@ -38,11 +40,15 @@ import com.burhanrashid52.photoeditor.filters.FilterViewAdapter;
 import com.burhanrashid52.photoeditor.tools.EditingToolsAdapter;
 import com.burhanrashid52.photoeditor.tools.ToolType;
 import com.daasuu.epf.EPlayerView;
+import com.daasuu.epf.PlayerScaleType;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -88,6 +94,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private EPlayerView ePlayerView;
     private SimpleExoPlayer player;
     private PlayerTimer playerTimer;
+    private SimpleExoPlayer audioMediaPlayer;
 
     @Nullable
     @VisibleForTesting
@@ -133,38 +140,41 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 .build(); // build photo editor sdk
 
         mPhotoEditor.setOnPhotoEditorListener(this);
-        try{
-            setUpSimpleExoPlayer();
-            Log.d("EXO", "onCreate: hh ");
-            setUoGlPlayerView();
-            Log.d("EXO", "onCreate: kk");
-            setUpTimer();
-        }
-        catch (Exception e)
-        {
-            Log.d("EXO2", "onCreate: "+e.getMessage());
-        }
+
 
 
         //Set Image Dynamically
         // mPhotoEditorView.getSource().setImageResource(R.drawable.color_palette);
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        try{
+            setUpSimpleExoPlayer();
+            initExoPlayer();
+            setUoGlPlayerView();
+            setUpTimer();
+            SimpleExoPlayer simpleExoPlayer = this.audioMediaPlayer;
+            if (simpleExoPlayer != null) {
+                simpleExoPlayer.setPlayWhenReady(true);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.d("EXO2", "onCreate: "+e.getMessage());
+        }
+    }
 
-    private void setUpSimpleExoPlayer() {
 
 
-        // Produces DataSource instances through which media data is loaded.
-
+    private void initExoPlayer()
+    {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
 
-        // This is the MediaSource representing the media to be played.
-//        MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-//                .createMediaSource(Uri.parse("http://demos.webmproject.org/exoplayer/glass.mp4"));
         final RawResourceDataSource rawResourceDataSource = new RawResourceDataSource(getApplicationContext());
-        DataSpec dataSpec = new DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.samplevideo));
-
-
+        DataSpec dataSpec = new DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.memories));
         try {
             rawResourceDataSource.open(dataSpec);
 
@@ -175,14 +185,49 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 }
             };
             MediaSource videoSource = new ExtractorMediaSource.Factory(factory).createMediaSource(rawResourceDataSource.getUri());
-            player = ExoPlayerFactory.newSimpleInstance(this);
-            player.prepare(videoSource);
-            player.setPlayWhenReady(true);
+            audioMediaPlayer = ExoPlayerFactory.newSimpleInstance(this);
+            audioMediaPlayer.prepare(videoSource);
+            audioMediaPlayer.setPlayWhenReady(true);
+            audioMediaPlayer.setVolume(0.4f);
 
         } catch (RawResourceDataSource.RawResourceDataSourceException e) {
             e.printStackTrace();
         }
 
+
+    }
+
+
+    private void setUpSimpleExoPlayer() {
+
+
+        // Produces DataSource instances through which media data is loaded.
+        if(this.audioMediaPlayer==null) {
+
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
+
+            final RawResourceDataSource rawResourceDataSource = new RawResourceDataSource(getApplicationContext());
+            DataSpec dataSpec = new DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.samplevideo));
+
+
+            try {
+                rawResourceDataSource.open(dataSpec);
+
+                DataSource.Factory factory = new DataSource.Factory() {
+                    @Override
+                    public DataSource createDataSource() {
+                        return rawResourceDataSource;
+                    }
+                };
+                MediaSource videoSource = new ExtractorMediaSource.Factory(factory).createMediaSource(rawResourceDataSource.getUri());
+                player = ExoPlayerFactory.newSimpleInstance(this);
+                player.prepare(videoSource);
+                player.setPlayWhenReady(true);
+
+            } catch (RawResourceDataSource.RawResourceDataSourceException e) {
+                e.printStackTrace();
+            }
+        }
 
 
         // SimpleExoPlayer
@@ -194,9 +239,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private void setUoGlPlayerView() {
         ePlayerView = new EPlayerView(this);
         ePlayerView.setSimpleExoPlayer(player);
-        ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+       // ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -2));
         ((MovieWrapperView) findViewById(R.id.layout_movie_wrapper)).addView(ePlayerView);
         ePlayerView.onResume();
+        ePlayerView.setPlayerScaleType(PlayerScaleType.RESIZE_FIT_WIDTH);
+        AppCompatImageView appCompatImageView = new AppCompatImageView(this);
+        appCompatImageView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -1));
+        ((FrameLayout) findViewById(R.id.layout_movie_wrapper)).addView(appCompatImageView);
     }
 
     private void setUpTimer() {
@@ -234,6 +284,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
 
 
+
+
+
+
     private void handleIntentImage(ImageView source) {
         Intent intent = getIntent();
         if (intent != null) {
@@ -261,7 +315,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mRvTools = findViewById(R.id.rvConstraintTools);
         mRvFilters = findViewById(R.id.rvFilterView);
         mRootView = findViewById(R.id.rootView);
-        Bitmap bitmapEmpty = Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888);
+        Bitmap bitmapEmpty = Bitmap.createBitmap(3000, 3000, Bitmap.Config.ARGB_8888);
         mPhotoEditorView.getSource().setImageBitmap(bitmapEmpty);
 
 //        imgUndo = findViewById(R.id.imgUndo);

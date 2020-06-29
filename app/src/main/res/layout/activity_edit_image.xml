@@ -13,7 +13,7 @@
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="675dp"
+        android:layout_marginTop="685dp"
         android:layout_marginEnd="411dp"
         android:layout_marginRight="411dp"
         android:layout_marginBottom="56dp"
