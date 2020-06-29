@@ -24,37 +24,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.burhanrashid52.photoeditor.MovieWrapperView
-        android:id="@+id/layout_movie_wrapper"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/txtCurrentTool"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:singleLine="true"
-            android:text="@string/app_name"
-            android:textColor="@android:color/white" />
+        <com.burhanrashid52.photoeditor.MovieWrapperView
+            android:id="@+id/layout_movie_wrapper"
+            android:layout_width="match_parent"
+            android:layout_marginTop="200dp"
+            android:layout_height="217dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </com.burhanrashid52.photoeditor.MovieWrapperView>
+            <TextView
+                android:id="@+id/txtCurrentTool"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="@android:color/white" />
+
+        </com.burhanrashid52.photoeditor.MovieWrapperView>
 
     <ja.burhanrashid52.photoeditor.PhotoEditorView
         android:id="@+id/photoEditorView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:photo_src="@color/transparent" />
+        app:photo_src="@color/transparent"
+        android:layout_marginTop="-230dp"/>
 
 
     <!--    <ImageView-->
@@ -89,13 +95,19 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toBottomOf="@+id/guideline" />-->
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center|bottom">
     <androidx.recyclerview.widget.RecyclerView
         android:backgroundTint="@color/transparent"
         android:id="@+id/rvConstraintTools"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="80dp"
-        android:layout_marginRight="80dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:background="@color/tool_bg"
         android:orientation="horizontal"
         android:paddingTop="4dp"
@@ -121,21 +133,16 @@
 
     <ImageView
         android:id="@+id/imgSave"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-
-        android:layout_marginStart="39dp"
-        android:layout_marginLeft="39dp"
-        android:layout_marginTop="35dp"
-        android:layout_marginEnd="63dp"
-        android:layout_marginRight="63dp"
-        android:layout_marginBottom="59dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="30dp"
         android:src="@drawable/ic_save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/rvConstraintTools"
         app:layout_constraintTop_toBottomOf="@+id/layout_movie_wrapper" />
+        </LinearLayout>
+        </LinearLayout>
 
     <!--    <ImageView-->
 <!--        android:id="@+id/imgShare"-->
