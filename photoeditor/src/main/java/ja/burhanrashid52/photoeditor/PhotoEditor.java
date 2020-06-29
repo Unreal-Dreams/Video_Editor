@@ -4,7 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntRange;
@@ -12,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.UiThread;
+
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -68,6 +73,10 @@ public class PhotoEditor implements BrushViewChangeListener {
         brushDrawingView.setBrushViewChangeListener(this);
         addedViews = new ArrayList<>();
         redoViews = new ArrayList<>();
+    }
+
+    public PhotoEditorView getParentView() {
+        return this.parentView;
     }
 
     /**
@@ -653,32 +662,33 @@ public class PhotoEditor implements BrushViewChangeListener {
                     protected void onPreExecute() {
                         super.onPreExecute();
                         clearHelperBox();
-                        parentView.setDrawingCacheEnabled(false);
+//                        parentView.setDrawingCacheEnabled(false);
                     }
 
                     @SuppressLint("MissingPermission")
                     @Override
                     protected Exception doInBackground(String... strings) {
                         // Create a media file name
-                        File file = new File(imagePath);
-                        try {
-                            FileOutputStream out = new FileOutputStream(file, false);
-                            if (parentView != null) {
-                                parentView.setDrawingCacheEnabled(true);
-                                Bitmap drawingCache = saveSettings.isTransparencyEnabled()
-                                        ? BitmapUtil.removeTransparency(parentView.getDrawingCache())
-                                        : parentView.getDrawingCache();
-                                drawingCache.compress(saveSettings.getCompressFormat(), saveSettings.getCompressQuality(), out);
-                            }
-                            out.flush();
-                            out.close();
-                            Log.d(TAG, "Filed Saved Successfully");
-                            return null;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.d(TAG, "Failed to save File");
-                            return e;
-                        }
+//                        File file = new File(imagePath);
+//                        try {
+//                            FileOutputStream out = new FileOutputStream(file, false);
+//                            if (parentView != null) {
+//                                parentView.setDrawingCacheEnabled(true);
+//                                Bitmap drawingCache = saveSettings.isTransparencyEnabled()
+//                                        ? BitmapUtil.removeTransparency(parentView.getDrawingCache())
+//                                        : parentView.getDrawingCache();
+//                                drawingCache.compress(saveSettings.getCompressFormat(), saveSettings.getCompressQuality(), out);
+//                            }
+//                            out.flush();
+//                            out.close();
+//                            Log.d(TAG, "Filed Saved Successfully");
+//                            return null;
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            Log.d(TAG, "Failed to save File");
+//                            return e;
+//                        }
+                        return null;
                     }
 
                     @Override
@@ -686,7 +696,7 @@ public class PhotoEditor implements BrushViewChangeListener {
                         super.onPostExecute(e);
                         if (e == null) {
                             //Clear all views if its enabled in save settings
-                            if (saveSettings.isClearViewsEnabled()) clearAllViews();
+//                            if (saveSettings.isClearViewsEnabled()) clearAllViews();
                             onSaveListener.onSuccess(imagePath);
                         } else {
                             onSaveListener.onFailure(e);
@@ -926,5 +936,18 @@ public class PhotoEditor implements BrushViewChangeListener {
             convertedEmojiList.add(convertEmoji(emojiUnicode));
         }
         return convertedEmojiList;
+    }
+
+    //create bitmap from the ScrollView
+    private Bitmap getBitmapFromView(View view, int height, int width) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(canvas);
+        else
+            canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
+        return bitmap;
     }
 }

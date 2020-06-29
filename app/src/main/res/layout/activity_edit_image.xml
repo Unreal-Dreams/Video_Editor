@@ -78,6 +78,17 @@
         app:photo_src="@color/transparent"
         android:layout_marginTop="-230dp"/>
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:id="@+id/saved_image"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="-230dp"
+            />
+
 
     <!--    <ImageView-->
 <!--        android:id="@+id/imgGallery"-->

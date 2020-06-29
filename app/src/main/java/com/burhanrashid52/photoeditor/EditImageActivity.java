@@ -5,7 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -56,9 +60,11 @@ import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
+import ja.burhanrashid52.photoeditor.OnSaveBitmap;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 import ja.burhanrashid52.photoeditor.PhotoFilter;
@@ -95,6 +101,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private SimpleExoPlayer player;
     private PlayerTimer playerTimer;
     private SimpleExoPlayer audioMediaPlayer;
+    private ImageView saved_image;
 
     @Nullable
     @VisibleForTesting
@@ -142,16 +149,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mPhotoEditor.setOnPhotoEditorListener(this);
 
 
-
         //Set Image Dynamically
         // mPhotoEditorView.getSource().setImageResource(R.drawable.color_palette);
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
-        try{
+        try {
             setUpSimpleExoPlayer();
             initExoPlayer();
             setUoGlPlayerView();
@@ -160,17 +165,13 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
             if (simpleExoPlayer != null) {
                 simpleExoPlayer.setPlayWhenReady(true);
             }
-        }
-        catch (Exception e)
-        {
-            Log.d("EXO2", "onCreate: "+e.getMessage());
+        } catch (Exception e) {
+            Log.d("EXO2", "onCreate: " + e.getMessage());
         }
     }
 
 
-
-    private void initExoPlayer()
-    {
+    private void initExoPlayer() {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
 
         final RawResourceDataSource rawResourceDataSource = new RawResourceDataSource(getApplicationContext());
@@ -202,7 +203,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
 
         // Produces DataSource instances through which media data is loaded.
-        if(this.audioMediaPlayer==null) {
+        if (this.audioMediaPlayer == null) {
 
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, getString(R.string.app_name)));
 
@@ -236,10 +237,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
 
     }
+
     private void setUoGlPlayerView() {
         ePlayerView = new EPlayerView(this);
         ePlayerView.setSimpleExoPlayer(player);
-       // ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -2));
         ((MovieWrapperView) findViewById(R.id.layout_movie_wrapper)).addView(ePlayerView);
         ePlayerView.onResume();
@@ -264,8 +266,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         releasePlayer();
         if (playerTimer != null) {
@@ -281,11 +282,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         player.release();
         player = null;
     }
-
-
-
-
-
 
 
     private void handleIntentImage(ImageView source) {
@@ -311,6 +307,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ImageView imgShare;
 
         mPhotoEditorView = findViewById(R.id.photoEditorView);
+        saved_image = findViewById(R.id.saved_image);
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool);
         mRvTools = findViewById(R.id.rvConstraintTools);
         mRvFilters = findViewById(R.id.rvFilterView);
@@ -435,33 +432,43 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     @SuppressLint("MissingPermission")
     private void saveImage() {
         if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            showLoading("Saving...");
+            mPhotoEditor.clearHelperBox();
+            mPhotoEditorView.setDrawingCacheEnabled(true);
+            Bitmap bitmap = BitmapUtil.removeTransparency(mPhotoEditorView.getDrawingCache(), mPhotoEditorView.getWidth(), mPhotoEditorView.getHeight());
+//                    getBitmapFromView(mPhotoEditorView, mPhotoEditorView.getHeight(), mPhotoEditorView.getWidth());
+//            bitmap.setHasAlpha(true);
+            saved_image.setImageBitmap(bitmap);
+            mPhotoEditorView.setVisibility(View.GONE);
             File file = new File(Environment.getExternalStorageDirectory()
                     + File.separator + ""
                     + System.currentTimeMillis() + ".png");
             try {
                 file.createNewFile();
 
-                SaveSettings saveSettings = new SaveSettings.Builder()
-                        .setClearViewsEnabled(true)
-                        .setTransparencyEnabled(true)
-                        .build();
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 0, out);
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                mPhotoEditor.saveAsFile(file.getAbsolutePath(), saveSettings, new PhotoEditor.OnSaveListener() {
-                    @Override
-                    public void onSuccess(@NonNull String imagePath) {
-                        hideLoading();
-                        showSnackbar("Image Saved Successfully");
-                        mSaveImageUri = Uri.fromFile(new File(imagePath));
-                        mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        hideLoading();
-                        showSnackbar("Failed to save Image");
-                    }
-                });
+//                mPhotoEditor.saveAsFile(file.getAbsolutePath(), saveSettings, new PhotoEditor.OnSaveListener() {
+//                    @Override
+//                    public void onSuccess(@NonNull String imagePath) {
+//                        hideLoading();
+//                        showSnackbar("Image Saved Successfully");
+//                        mSaveImageUri = Uri.fromFile(new File(imagePath));
+//                        mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(@NonNull Exception exception) {
+//                        hideLoading();
+//                        showSnackbar("Failed to save Image");
+//                    }
+//                });
             } catch (IOException e) {
                 e.printStackTrace();
                 hideLoading();
@@ -636,5 +643,18 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         } else {
             super.onBackPressed();
         }
+    }
+
+    //create bitmap from the ScrollView
+    private Bitmap getBitmapFromView(View view, int height, int width) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(canvas);
+        else
+            canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
+        return bitmap;
     }
 }

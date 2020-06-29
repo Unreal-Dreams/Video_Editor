@@ -44,7 +44,6 @@ import com.daasuu.epf.filter.GlVibranceFilter;
 import com.daasuu.epf.filter.GlVignetteFilter;
 import com.daasuu.epf.filter.GlWatermarkFilter;
 import com.daasuu.epf.filter.GlWeakPixelInclusionFilter;
-import com.daasuu.epf.filter.GlWhiteBalanceFilter;
 import com.daasuu.epf.filter.GlZoomBlurFilter;
 
 import java.io.IOException;
