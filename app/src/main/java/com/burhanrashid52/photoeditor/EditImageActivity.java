@@ -17,6 +17,7 @@ import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,6 +91,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintLayout mRootView;
     private ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
+    private SeekBar videoVolume;
+    private SeekBar externalAudioVolume;
 
     private EPlayerView ePlayerView;
     private SimpleExoPlayer player;
@@ -109,6 +112,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
 
         initViews();
+
 
         handleIntentImage(mPhotoEditorView.getSource());
 
@@ -160,6 +164,62 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
             if (simpleExoPlayer != null) {
                 simpleExoPlayer.setPlayWhenReady(true);
             }
+
+            videoVolume=findViewById(R.id.video_volume);
+            externalAudioVolume=findViewById(R.id.external_audio_volume);
+            videoVolume.setMax(10);
+            videoVolume.setProgress(5);
+
+            videoVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    player.setVolume((float)i/10);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+            externalAudioVolume.setMax(10);
+            externalAudioVolume.setProgress(5);
+            externalAudioVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    audioMediaPlayer.setVolume((float)i/10);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
         catch (Exception e)
         {
@@ -188,7 +248,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
             audioMediaPlayer = ExoPlayerFactory.newSimpleInstance(this);
             audioMediaPlayer.prepare(videoSource);
             audioMediaPlayer.setPlayWhenReady(true);
-            audioMediaPlayer.setVolume(0.4f);
+            audioMediaPlayer.setVolume(0.5f);
 
         } catch (RawResourceDataSource.RawResourceDataSourceException e) {
             e.printStackTrace();
@@ -223,6 +283,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 player = ExoPlayerFactory.newSimpleInstance(this);
                 player.prepare(videoSource);
                 player.setPlayWhenReady(true);
+                player.setVolume(0.5f);
 
             } catch (RawResourceDataSource.RawResourceDataSourceException e) {
                 e.printStackTrace();
@@ -243,10 +304,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ePlayerView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -2));
         ((MovieWrapperView) findViewById(R.id.layout_movie_wrapper)).addView(ePlayerView);
         ePlayerView.onResume();
-        ePlayerView.setPlayerScaleType(PlayerScaleType.RESIZE_FIT_WIDTH);
-        AppCompatImageView appCompatImageView = new AppCompatImageView(this);
-        appCompatImageView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -1));
-        ((FrameLayout) findViewById(R.id.layout_movie_wrapper)).addView(appCompatImageView);
+//        ePlayerView.setPlayerScaleType(PlayerScaleType.RESIZE_FIT_WIDTH);
+//        AppCompatImageView appCompatImageView = new AppCompatImageView(this);
+//        appCompatImageView.setLayoutParams(new RelativeLayout.LayoutParams(-1, -1));
+//        ((FrameLayout) findViewById(R.id.layout_movie_wrapper)).addView(appCompatImageView);
     }
 
     private void setUpTimer() {
