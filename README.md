@@ -22,8 +22,6 @@ We can apply inbuild filter to the source images using
 
 We can also apply custom effect using `Custom.Builder`
 
-For more details check [Custom Filters](https://github.com/burhanrashid52/PhotoEditor/wiki/Filter-Effect)
-
 
 
 ## Text
